@@ -1,0 +1,346 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    /* Dark Navy Blue Theme */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 215 35% 18%;
+    --card-foreground: 210 40% 98%;
+    --popover: 215 35% 18%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 187 100% 50%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 215 30% 25%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 30% 22%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 215 30% 25%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 30% 25%;
+    --input: 215 30% 22%;
+    --ring: 187 100% 50%;
+    --radius: 0.75rem;
+
+    /* Chart Colors */
+    --chart-1: 187 100% 50%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 262 83% 58%;
+    --chart-4: 0 72% 51%;
+    --chart-5: 47 96% 53%;
+
+    /* Custom Theme Colors */
+    --navy-dark: #0f172a;
+    --navy-medium: #1e293b;
+    --slate-blue: #334155;
+    --slate-light: #475569;
+    --cyan-primary: hsl(var(--primary));
+    --cyan-light: hsl(var(--primary) / 0.8);
+    --cyan-dark: hsl(var(--primary) / 1.2);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+}
+
+:root.light {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 187 100% 42%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 222 47% 11.2%;
+    --muted: 210 40% 92%;
+    --muted-foreground: 215.4 16.3% 40%;
+    --accent: 210 40% 92%;
+    --accent-foreground: 222 47% 11.2%;
+    --destructive: 0 84.2% 50.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 32.1% 85%;
+    --input: 214.3 32.1% 85%;
+    --ring: 187 100% 42%;
+    
+    --navy-dark: #f8fafc;
+    --navy-medium: #ffffff;
+    --slate-blue: #cbd5e1;
+    --slate-light: #94a3b8;
+
+    /* Chart specifics for light mode */
+    --chart-grid: #e2e8f0;
+    --chart-text: #64748b;
+}
+
+:root {
+    /* Existing dark mode variables */
+    --chart-grid: #334155;
+    --chart-text: #94a3b8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--navy-dark);
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+}
+
+code,
+.mono,
+.ticker {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* Dashboard Card Styles */
+.dashboard-card {
+    background: var(--navy-medium);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    border-color: hsla(var(--primary) / 0.3);
+    box-shadow: 0 10px 40px hsla(var(--primary) / 0.1);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    background: linear-gradient(180deg, var(--navy-medium) 0%, var(--navy-dark) 100%);
+    border-right: 1px solid var(--border);
+}
+
+.sidebar-icon {
+    transition: all 0.2s ease;
+}
+
+.sidebar-icon:hover {
+    background: rgba(0, 212, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.sidebar-icon.active {
+    background: rgba(0, 212, 255, 0.2);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+/* Ticker Tape Animation */
+@keyframes ticker {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.ticker-tape {
+    animation: ticker 40s linear infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--navy-medium);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--slate-light);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #00d4ff;
+}
+
+/* Cyan Glow Effects */
+.glow-cyan {
+    box-shadow: 0 0 20px hsla(var(--primary) / 0.3);
+}
+
+.text-glow {
+    text-shadow: 0 0 10px hsla(var(--primary) / 0.5);
+}
+
+/* Gradient Text */
+.gradient-text {
+    background: linear-gradient(135deg, #00d4ff 0%, #67e8f9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-badge.danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Metric Card */
+.metric-card {
+    background: var(--navy-medium);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+    border-radius: 0 0 0 100%;
+}
+
+/* Button Styles */
+.btn-cyan {
+    background: linear-gradient(135deg, #00d4ff 0%, #0891b2 100%);
+    color: #0f172a;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-cyan:hover {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-outline-cyan {
+    border: 1px solid rgba(0, 212, 255, 0.5);
+    color: #00d4ff;
+    background: transparent;
+}
+
+.btn-outline-cyan:hover {
+    background: rgba(0, 212, 255, 0.1);
+    border-color: #00d4ff;
+}
+
+/* Input Styles */
+input,
+select,
+textarea {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #00d4ff !important;
+    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2) !important;
+}
+
+input::placeholder {
+    color: #64748b !important;
+}
+
+/* Chart Tooltip */
+.recharts-tooltip-wrapper {
+    z-index: 1000 !important;
+}
+
+.recharts-default-tooltip {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px !important;
+}
+
+/* Glass Effect for Header */
+.glass-header {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #334155;
+}
+
+/* Pulse Animation */
+@keyframes pulse-cyan {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.pulse-cyan {
+    animation: pulse-cyan 2s ease-in-out infinite;
+}
+
+/* Selection Color */
+::selection {
+    background: rgba(0, 212, 255, 0.3);
+    color: #f1f5f9;
+}

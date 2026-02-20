@@ -1,0 +1,150 @@
+{
+  "project_name": "AI-Powered Stock Market Prediction & Portfolio Risk Advisory System",
+  "design_philosophy": {
+    "identity": "E1 - The Anti-AI Designer",
+    "archetype": "Neon Fintech (Electric & Neon + Swiss Precision)",
+    "core_principles": [
+      "Fusion over Imitation: Bloomberg Terminal meets Cyberpunk HUD.",
+      "Data is Art: Charts are not just functional; they are the primary aesthetic.",
+      "Darkness is Canvas: Use deep obsidian backgrounds to make neon data pop.",
+      "Density with Breath: High information density (like a pro tool) but with distinct grouping."
+    ],
+    "anti_patterns": [
+      "No 'Bootstrap' default styles.",
+      "No soft, muddy shadows. Use sharp, glowing borders.",
+      "No generic 'Inter' for headings. Use characterful fonts.",
+      "No gradients on text unless it's a massive hero title."
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Chivo, sans-serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "installation_instructions": "Import fonts via Google Fonts in index.css: @import url('https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;700;900&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap');",
+    "usage_rules": {
+      "headings": "Uppercase, tracking-tight, weight 700 or 900. Use for page titles and major section headers.",
+      "body": "High legibility, weight 400 or 500. Use for all standard text.",
+      "mono": "Use for ALL numbers, tickers (e.g., RELIANCE, TCS), and financial data.",
+      "hero_text": "Size 5xl+, weight 900, optional neon text-shadow."
+    }
+  },
+  "colors": {
+    "theme": "dark",
+    "palette": {
+      "background": "#050505",
+      "foreground": "#EDEDED",
+      "card": "#0A0A0A",
+      "card_foreground": "#FFFFFF",
+      "popover": "#0A0A0A",
+      "popover_foreground": "#FFFFFF",
+      "primary": "#00F0FF",
+      "primary_foreground": "#000000",
+      "secondary": "#00FF94",
+      "secondary_foreground": "#000000",
+      "muted": "#1A1A1A",
+      "muted_foreground": "#888888",
+      "accent": "#1F1F22",
+      "accent_foreground": "#FFFFFF",
+      "destructive": "#FF0055",
+      "destructive_foreground": "#FFFFFF",
+      "border": "#1F1F22",
+      "input": "#1A1A1A",
+      "ring": "#00F0FF"
+    },
+    "chart_colors": {
+      "chart_1": "#00F0FF",
+      "chart_2": "#00FF94",
+      "chart_3": "#7000FF",
+      "chart_4": "#FF0055",
+      "chart_5": "#FFD600"
+    },
+    "gradients": {
+      "glow_blue": "linear-gradient(135deg, rgba(0,240,255,0.2) 0%, rgba(0,0,0,0) 100%)",
+      "glow_green": "linear-gradient(135deg, rgba(0,255,148,0.2) 0%, rgba(0,0,0,0) 100%)",
+      "glass": "rgba(10, 10, 10, 0.7)"
+    }
+  },
+  "layout": {
+    "spacing_system": "Tailwind scale. Use p-6 or p-8 for cards. Gap-4 for dense grids, Gap-8 for marketing sections.",
+    "grid_system": {
+      "dashboard": "Bento Grid Mode B (High Density). Grid-cols-1 md:grid-cols-3 lg:grid-cols-4. Use col-span-2 for main charts.",
+      "landing": "Asymmetric Tetris Grid. Mix wide hero sections with narrow feature columns."
+    },
+    "container_styles": {
+      "card": "bg-card border border-border rounded-sm hover:border-primary/50 transition-colors duration-300",
+      "glass_panel": "backdrop-blur-xl bg-black/60 border-b border-white/10"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-black font-bold uppercase tracking-wider hover:shadow-[0_0_15px_rgba(0,240,255,0.5)] transition-all rounded-sm",
+      "secondary": "border border-primary/30 text-primary hover:bg-primary/10 rounded-sm",
+      "ghost": "hover:bg-white/5 text-muted-foreground hover:text-white"
+    },
+    "inputs": {
+      "style": "bg-input border-transparent focus:border-primary focus:ring-1 focus:ring-primary rounded-sm text-white placeholder:text-muted-foreground/50"
+    },
+    "charts": {
+      "library": "Recharts (via Shadcn)",
+      "style": "Use 'monotone' curves. Hide grid lines or make them extremely subtle (#222). Use gradients for area fills."
+    },
+    "visual_enhancers": {
+      "tracing_beam": "Use framer-motion to animate a glowing border around active cards.",
+      "scanlines": "Optional subtle CRT scanline overlay on specific 'Terminal' sections.",
+      "neon_glow": "Drop-shadow-[0_0_10px_rgba(0,240,255,0.3)] for key metrics."
+    }
+  },
+  "assets": {
+    "icons": "Lucide React (default). Use stroke-width={1.5} for a sleek look.",
+    "images": {
+      "hero_bg": {
+        "url": "https://images.unsplash.com/photo-1700934003557-c2f607536a98?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwxfHxtdW1iYWklMjBza3lsaW5lJTIwbmlnaHQlMjBmdXR1cmlzdGljJTIwY2l0eXxlbnwwfHx8fDE3Njk2MDkzNzR8MA&ixlib=rb-4.1.0&q=85",
+        "alt": "Futuristic Mumbai Skyline Night",
+        "usage": "Landing page hero background with heavy dark overlay (bg-black/80)."
+      },
+      "dashboard_mock": {
+        "url": "https://images.unsplash.com/photo-1634097537825-b446635b2f7f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHw0fHxmdXR1cmlzdGljJTIwc3RvY2slMjBtYXJrZXQlMjBncmFwaCUyMG5lb24lMjBkYXRhfGVufDB8fHx8MTc2OTYwOTM3MXww&ixlib=rb-4.1.0&q=85",
+        "alt": "Stock Market Data Screen",
+        "usage": "Feature section visual."
+      },
+      "trader_context": {
+        "url": "https://images.unsplash.com/photo-1732354434112-a8ca835fe4d9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwxfHx0cmFkZXIlMjBhbmFseXppbmclMjBtdWx0aXBsZSUyMHNjcmVlbnMlMjBkYXJrJTIwZW52aXJvbm1lbnR8ZW58MHx8fHwxNzY5NjA5Mzc2fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Pro Trader at Work",
+        "usage": "About/Why Us section."
+      }
+    }
+  },
+  "motion": {
+    "libraries": ["framer-motion", "lenis"],
+    "transitions": {
+      "page": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}",
+      "hover": "transition-all duration-300 ease-out"
+    }
+  },
+  "accessibility": {
+    "contrast": "Ensure neon text is not used on light backgrounds. Use white text on black backgrounds for body copy.",
+    "testing": "All interactive elements must have data-testid attributes."
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALLATION: Run 'npm install framer-motion @studio-freight/lenis recharts lucide-react clsx tailwind-merge'.",
+    "2. TAILWIND CONFIG: Update tailwind.config.js to use the specific colors defined in 'colors.palette'. Extend the theme, do not overwrite.",
+    "3. CSS VARIABLES: Update index.css :root and .dark classes to match the palette exactly. Force dark mode by default in body.",
+    "4. FONTS: Add the Google Fonts import to index.css immediately.",
+    "5. LANDING PAGE: The Login page IS the Landing page. It should have a split layout: Left side = 'Mumbai Skyline' with glass overlay and value prop; Right side = Login/Register form.",
+    "6. DASHBOARD: Use the 'Bento Grid' layout. Create a 'Ticker Tape' component at the top using a simple CSS animation.",
+    "7. CHARTS: Create a reusable <ChartCard> component that accepts a title, value, and Recharts component. Add a 'glow' effect to the line charts using drop-shadow filter in SVG.",
+    "8. TESTING: Add data-testid to every button, input, and link."
+  ],
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: transition: all.",
+    "You MUST NOT center align the app container.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
+    "NEVER use AI assistant Emoji characters."
+  ]
+}

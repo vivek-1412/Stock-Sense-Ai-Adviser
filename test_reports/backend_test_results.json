@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "total_tests": 24,
+    "passed": 22,
+    "failed": 2,
+    "success_rate": 91.66666666666666
+  },
+  "tests": [
+    {
+      "test": "Root Endpoint",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:21.804913"
+    },
+    {
+      "test": "Health Check",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:22.428993"
+    },
+    {
+      "test": "User Registration",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:23.743035"
+    },
+    {
+      "test": "User Login",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:24.810620"
+    },
+    {
+      "test": "Get Current User",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:25.660328"
+    },
+    {
+      "test": "Stock Search",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:26.517590"
+    },
+    {
+      "test": "Get Stock Details",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:27.896171"
+    },
+    {
+      "test": "Stock Prediction (30d)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:29.059495"
+    },
+    {
+      "test": "Multi-timeframe Predictions",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:30.844688"
+    },
+    {
+      "test": "Trending Stocks",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:31.924442"
+    },
+    {
+      "test": "Dashboard Summary",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:32.839142"
+    },
+    {
+      "test": "Dashboard Predictions",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:39.428097"
+    },
+    {
+      "test": "Get Portfolio (Empty)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:40.277214"
+    },
+    {
+      "test": "Add to Portfolio",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:41.202121"
+    },
+    {
+      "test": "Get Portfolio (With Items)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:42.088070"
+    },
+    {
+      "test": "Remove from Portfolio",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:42.951028"
+    },
+    {
+      "test": "Get Alerts (Empty)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:43.800871"
+    },
+    {
+      "test": "Create Alert",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:44.450305"
+    },
+    {
+      "test": "Get Alerts (With Items)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:45.296798"
+    },
+    {
+      "test": "Toggle Alert",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:46.147921"
+    },
+    {
+      "test": "Delete Alert",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:46.988663"
+    },
+    {
+      "test": "Invalid Stock Symbol",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-28T14:51:49.107896"
+    },
+    {
+      "test": "Unauthorized Access",
+      "success": false,
+      "details": "Expected 401, got 403 - {'detail': 'Not authenticated'}",
+      "timestamp": "2026-01-28T14:51:49.949572"
+    },
+    {
+      "test": "Invalid Prediction Days",
+      "success": false,
+      "details": "Expected 400, got 200 - {'symbol': 'RELIANCE', 'current_price': 1396.7, 'predicted_price': 1314.92, 'predicted_change_percent': -5.85, 'trend': 'bearish', 'confidence': 55.0, 'prediction_date': '2028-10-23'}",
+      "timestamp": "2026-01-28T14:51:50.943457"
+    }
+  ],
+  "timestamp": "2026-01-28T14:51:50.944175"
+}

@@ -1,0 +1,10 @@
+/* Reset and base styles - handled by index.css */
+
+.App {
+    min-height: 100vh;
+}
+
+/* Force dark mode */
+.dark {
+    color-scheme: dark;
+}
