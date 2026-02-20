@@ -20,7 +20,7 @@ import {
   PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar
 } from 'recharts';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_BACKEND_URL || "";
 
 // Sidebar Component
 const Sidebar = ({ activeItem, onItemClick }) => {
