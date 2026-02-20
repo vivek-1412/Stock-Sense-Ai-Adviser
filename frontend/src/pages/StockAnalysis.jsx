@@ -37,6 +37,7 @@ const StockAnalysis = () => {
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchStockData(); fetchPredictions(); fetchPortfolio(); }, [symbol, period]);
 
   const fetchStockData = async () => {

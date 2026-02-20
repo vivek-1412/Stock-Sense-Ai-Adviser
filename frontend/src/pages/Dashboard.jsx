@@ -213,6 +213,7 @@ const Dashboard = () => {
   const [predictionsLoading, setPredictionsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchDashboardData();
     fetchTrendingStocks();
