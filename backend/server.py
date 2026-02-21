@@ -23,7 +23,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB Connection
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://user:pass@cluster.mongodb.net/?retryWrites=true&w=majority")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://sanketkavdale1412_db_user:Sanket1234%40@cluster1.h1wfouv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.stocksense
 
@@ -208,27 +208,38 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 def get_stock_data(symbol: str, period: str = "2y") -> Any:
     import yfinance as yf
+
     cache_key = f"hist_{symbol}_{period}"
     if cache_key in MARKET_DATA_CACHE:
         entry = MARKET_DATA_CACHE[cache_key]
         if time.time() - entry["timestamp"] < 1800:
             return entry["data"]
 
-    nse_symbol = f"{symbol}.NS" if not (symbol.endswith('.NS') or symbol.endswith('.BO')) else symbol
-    try:
-        ticker = yf.Ticker(nse_symbol)
-        df = ticker.history(period=period)
-        if df.empty:
-            bse_symbol = f"{symbol}.BO"
-            ticker = yf.Ticker(bse_symbol)
+    # Normalize symbol - strip any existing suffix first
+    base_symbol = symbol.replace(".NS", "").replace(".BO", "").upper()
+    symbols_to_try = [f"{base_symbol}.NS", f"{base_symbol}.BO"]
+
+    # If caller already passed a suffixed symbol, try that first
+    if symbol.upper().endswith(".NS") or symbol.upper().endswith(".BO"):
+        symbols_to_try = [symbol.upper()] + [s for s in symbols_to_try if s != symbol.upper()]
+
+    df = pd.DataFrame()
+    for attempt_symbol in symbols_to_try:
+        try:
+            # Do NOT pass session= - modern yfinance uses curl_cffi internally
+            ticker = yf.Ticker(attempt_symbol)
             df = ticker.history(period=period)
-        
-        if not df.empty:
-            MARKET_DATA_CACHE[cache_key] = {"timestamp": time.time(), "data": df}
-        return df
-    except Exception as e:
-        logging.error(f"Error fetching stock data: {e}")
-        return pd.DataFrame()
+            if not df.empty:
+                logging.info(f"Fetched {attempt_symbol} successfully (period={period})")
+                MARKET_DATA_CACHE[cache_key] = {"timestamp": time.time(), "data": df}
+                return df
+            else:
+                logging.warning(f"{attempt_symbol}: No price data found (period={period})")
+        except Exception as e:
+            logging.warning(f"{attempt_symbol} failed: {e}")
+
+    logging.error(f"All attempts failed for symbol '{symbol}' (period={period})")
+    return pd.DataFrame()
 
 def calculate_rsi(series: Any, period: int = 14) -> Any:
     delta = series.diff()

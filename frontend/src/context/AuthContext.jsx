@@ -3,7 +3,8 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-const API_URL = process.env.REACT_APP_BACKEND_URL || "";
+// Fix: Use REACT_APP_BACKEND_URL env variable, with no fallback so it errors clearly if missing
+const API_URL = (process.env.REACT_APP_BACKEND_URL || '').replace(/\/$/, '');
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
+    if (!API_URL) throw new Error('Backend URL not configured. Set REACT_APP_BACKEND_URL in your environment.');
     const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
     const { token: newToken, user: userData } = response.data;
     localStorage.setItem('token', newToken);
@@ -46,6 +48,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
+    if (!API_URL) throw new Error('Backend URL not configured. Set REACT_APP_BACKEND_URL in your environment.');
     const response = await axios.post(`${API_URL}/api/auth/register`, { name, email, password });
     const { token: newToken, user: userData } = response.data;
     localStorage.setItem('token', newToken);
