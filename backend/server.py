@@ -14,7 +14,7 @@ import jwt
 import bcrypt
 import json
 import pandas as pd
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager 
 import asyncio
 import numpy as np
 import time
@@ -478,6 +478,108 @@ async def get_trending_stocks():
     tasks = [fetch_trending(s) for s in trending_symbols]
     results = await asyncio.gather(*tasks)
     return [r for r in results if r]
+
+@api_router.get("/market/movers")
+async def get_market_movers():
+    # Helper to get both gainers and losers based on live trend data
+    results = await get_trending_stocks()
+    # Sort results by change_percent
+    sorted_results = sorted(results, key=lambda x: x["change_percent"], reverse=True)
+    gainers = [r for r in sorted_results if r["change_percent"] > 0]
+    losers = [r for r in sorted_results if r["change_percent"] < 0]
+    
+    # If no natural gainers/losers, just split
+    if not gainers and not losers:
+        gainers, losers = sorted_results[:len(sorted_results)//2], sorted_results[len(sorted_results)//2:]
+    
+    return {"gainers": gainers, "losers": losers[::-1]}
+
+def parse_yf_news(raw_news):
+    formatted = []
+    for item in raw_news:
+        content = item.get("content", item)
+        title = content.get("title", "Market Update")
+        
+        # Parse URL robustly
+        url = "#"
+        if "clickThroughUrl" in content and isinstance(content["clickThroughUrl"], dict):
+            url = content["clickThroughUrl"].get("url", url)
+        elif "url" in content:
+            url = content["url"]
+        elif "canonicalUrl" in content and isinstance(content["canonicalUrl"], dict):
+            url = content["canonicalUrl"].get("url", url)
+
+        # Parse Publisher
+        publisher = "Market News"
+        if "provider" in content and isinstance(content["provider"], dict):
+            publisher = content["provider"].get("displayName", publisher)
+
+        # Parse Publish Time
+        pub_time = time.time()
+        try:
+            if "pubDate" in content:
+                from datetime import datetime
+                # Handle ISO 8601 strings commonly returned by YF
+                # E.g. '2024-04-03T18:00:00Z'
+                pub_time = datetime.fromisoformat(content["pubDate"].replace('Z', '+00:00')).timestamp()
+            elif "providerPublishTime" in content:
+                pub_time = float(content["providerPublishTime"])
+        except:
+            pass
+            
+        formatted.append({
+            "title": title,
+            "link": url,
+            "publisher": publisher,
+            "providerPublishTime": pub_time
+        })
+    return formatted
+
+@api_router.get("/market/news")
+async def get_market_news():
+    import yfinance as yf
+    try:
+        # Fetch news from broad market indices and top stocks to represent whole market news
+        tickers = ["^NSEI", "^BSESN", "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS"]
+        parsed_news = []
+        
+        for t in tickers:
+            tkr = yf.Ticker(t)
+            n = tkr.news
+            if n:
+                parsed_news.extend(parse_yf_news(n))
+                
+        # Sort by time descending
+        parsed_news.sort(key=lambda x: x.get('providerPublishTime', 0), reverse=True)
+        
+        # Deduplicate
+        seen_titles = set()
+        final_news = []
+        for item in parsed_news:
+            if item["title"] not in seen_titles:
+                seen_titles.add(item["title"])
+                final_news.append(item)
+                
+        return final_news[:24] if final_news else []
+    except Exception as e:
+        logging.error(f"Error fetching news: {e}")
+        return []
+
+@api_router.get("/stocks/{symbol}/news")
+async def get_stock_news(symbol: str):
+    import yfinance as yf
+    # Normalize symbol for YF
+    base_symbol = symbol.replace(".NS", "").replace(".BO", "").upper()
+    try:
+        tkr = yf.Ticker(f"{base_symbol}.NS")
+        news = tkr.news
+        if not news:
+            tkr = yf.Ticker(base_symbol)
+            news = tkr.news
+        return parse_yf_news(news[:15]) if news else []
+    except Exception as e:
+        logging.error(f"Error fetching news for {symbol}: {e}")
+        return []
 
 # ================= PORTFOLIO ROUTES =================
 

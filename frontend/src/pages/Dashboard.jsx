@@ -204,19 +204,22 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
-  const [trendingStocks, setTrendingStocks] = useState([]);
+  const [marketMovers, setMarketMovers] = useState({ gainers: [], losers: [] });
+  const [news, setNews] = useState([]);
   const [portfolio, setPortfolio] = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newsLoading, setNewsLoading] = useState(true);
   const [predictionsLoading, setPredictionsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchDashboardData();
-    fetchTrendingStocks();
+    fetchMarketMovers();
+    fetchNews();
     fetchPortfolio();
     fetchPredictions();
   }, []);
@@ -230,14 +233,26 @@ const Dashboard = () => {
     }
   };
 
-  const fetchTrendingStocks = async () => {
+  const fetchMarketMovers = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/market/trending`);
-      setTrendingStocks(response.data);
+      const response = await axios.get(`${API_URL}/api/market/movers`);
+      setMarketMovers(response.data);
     } catch (error) {
-      console.error('Failed to fetch trending stocks:', error);
+      console.error('Failed to fetch market movers:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchNews = async () => {
+    try {
+      setNewsLoading(true);
+      const response = await axios.get(`${API_URL}/api/market/news`);
+      setNews(response.data);
+    } catch (error) {
+      console.error('Failed to fetch news:', error);
+    } finally {
+      setNewsLoading(false);
     }
   };
 
@@ -398,186 +413,294 @@ const Dashboard = () => {
 
         {/* Dashboard Grid */}
         <main className="max-w-[1800px] mx-auto px-6 py-6">
-          {/* Top Metrics Row */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-            <MetricCard title="Portfolio Value" value={`₹${portfolioSummary.total_current?.toLocaleString() || '0'}`} change={`${portfolioSummary.pnl_percent >= 0 ? '+' : ''}${portfolioSummary.pnl_percent?.toFixed(1) || 0}%`} changeType={portfolioSummary.pnl_percent >= 0 ? 'positive' : 'negative'} icon={Wallet} sparklineData={sparklineData} color="var(--cyan-primary)" />
-            <MetricCard title="Total P&L" value={`₹${portfolioSummary.total_pnl?.toLocaleString() || '0'}`} change={`${portfolioSummary.total_pnl >= 0 ? '+' : ''}${((portfolioSummary.total_pnl / (portfolioSummary.total_invested || 1)) * 100).toFixed(1)}%`} changeType={portfolioSummary.total_pnl >= 0 ? 'positive' : 'negative'} icon={TrendingUp} sparklineData={sparklineData} color="var(--success)" />
-            <MetricCard title="Holdings" value={portfolioSummary.holdings_count || 0} change="+2 this week" changeType="positive" icon={PieChart} color="#8b5cf6" />
-            <MetricCard title="Active Alerts" value={dashboardData?.alerts_count || 0} change="Monitoring" changeType="positive" icon={Bell} color="var(--warning)" />
-          </motion.div>
+          {activeSection === 'dashboard' && (
+            <>
+              {/* Top Metrics Row */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+                <MetricCard title="Portfolio Value" value={`₹${portfolioSummary.total_current?.toLocaleString() || '0'}`} change={`${portfolioSummary.pnl_percent >= 0 ? '+' : ''}${portfolioSummary.pnl_percent?.toFixed(1) || 0}%`} changeType={portfolioSummary.pnl_percent >= 0 ? 'positive' : 'negative'} icon={Wallet} sparklineData={sparklineData} color="var(--cyan-primary)" />
+                <MetricCard title="Total P&L" value={`₹${portfolioSummary.total_pnl?.toLocaleString() || '0'}`} change={`${portfolioSummary.total_pnl >= 0 ? '+' : ''}${((portfolioSummary.total_pnl / (portfolioSummary.total_invested || 1)) * 100).toFixed(1)}%`} changeType={portfolioSummary.total_pnl >= 0 ? 'positive' : 'negative'} icon={TrendingUp} sparklineData={sparklineData} color="var(--success)" />
+                <MetricCard title="Holdings" value={portfolioSummary.holdings_count || 0} change="+2 this week" changeType="positive" icon={PieChart} color="#8b5cf6" />
+                <MetricCard title="Active Alerts" value={dashboardData?.alerts_count || 0} change="Monitoring" changeType="positive" icon={Bell} color="var(--warning)" />
+              </motion.div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Performance Chart */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2">
-              <div className="dashboard-card p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground">Live Market Data</h3>
-                    <p className="text-sm text-muted-foreground">Real Time Visualization</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge className="bg-primary/20 text-primary border-primary/30">1D</Badge>
-                    <Badge variant="outline" className="border-border text-muted-foreground">1W</Badge>
-                    <Badge variant="outline" className="border-border text-muted-foreground">1M</Badge>
-                  </div>
-                </div>
-                <div className="h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={monthlyData}>
-                      <defs>
-                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="var(--cyan-primary)" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="var(--cyan-primary)" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="var(--success)" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="var(--success)" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="month" tick={{ fill: 'var(--chart-text)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: 'var(--chart-text)', fontSize: 12 }} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{ background: 'var(--navy-medium)', border: '1px solid var(--border)', borderRadius: '12px', color: 'hsl(var(--foreground))' }} />
-                      <Area type="monotone" dataKey="value" stroke="var(--cyan-primary)" strokeWidth={2} fill="url(#colorValue)" />
-                      <Area type="monotone" dataKey="profit" stroke="var(--success)" strokeWidth={2} fill="url(#colorProfit)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Gauge & Stats */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-6">
-              <div className="dashboard-card p-6">
-                <h3 className="text-lg font-bold text-foreground mb-2">Portfolio Health</h3>
-                <GaugeChart value={76} label="Performance Score" color="var(--cyan-primary)" />
-                <div className="flex items-center justify-between mt-2 text-sm">
-                  <span className="text-muted-foreground">0%</span>
-                  <span className="text-emerald-500 font-medium">+15% vs last month</span>
-                  <span className="text-muted-foreground">100%</span>
-                </div>
-              </div>
-
-              <div className="dashboard-card p-6">
-                <h3 className="text-lg font-bold text-foreground mb-4">Quick Stats</h3>
-                <div className="space-y-3">
-                  {[
-                    { label: 'Win Rate', value: '68%', color: 'var(--success)' },
-                    { label: 'Avg Return', value: '+12.4%', color: 'var(--cyan-primary)' },
-                    { label: 'Risk Score', value: 'Low', color: 'var(--warning)' },
-                  ].map((stat) => (
-                    <div key={stat.label} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
-                      <span className="text-muted-foreground">{stat.label}</span>
-                      <span className="font-bold" style={{ color: stat.color }}>{stat.value}</span>
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                {/* Performance Chart */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2">
+                  <div className="dashboard-card p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-lg font-bold text-foreground">Live Market Data</h3>
+                        <p className="text-sm text-muted-foreground">Real Time Visualization</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge className="bg-primary/20 text-primary border-primary/30">1D</Badge>
+                        <Badge variant="outline" className="border-border text-muted-foreground">1W</Badge>
+                        <Badge variant="outline" className="border-border text-muted-foreground">1M</Badge>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Bottom Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* AI Predictions */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
-              <div className="dashboard-card p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                      <Brain className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-foreground">AI Stock Predictions</h3>
-                      <p className="text-sm text-muted-foreground">3D • 7D • 15D • 30D Forecasts</p>
+                    <div className="h-[280px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={monthlyData}>
+                          <defs>
+                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="var(--cyan-primary)" stopOpacity={0.4} />
+                              <stop offset="95%" stopColor="var(--cyan-primary)" stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="var(--success)" stopOpacity={0.4} />
+                              <stop offset="95%" stopColor="var(--success)" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <XAxis dataKey="month" tick={{ fill: 'var(--chart-text)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fill: 'var(--chart-text)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                          <Tooltip contentStyle={{ background: 'var(--navy-medium)', border: '1px solid var(--border)', borderRadius: '12px', color: 'hsl(var(--foreground))' }} />
+                          <Area type="monotone" dataKey="value" stroke="var(--cyan-primary)" strokeWidth={2} fill="url(#colorValue)" />
+                          <Area type="monotone" dataKey="profit" stroke="var(--success)" strokeWidth={2} fill="url(#colorProfit)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
-                  <Badge className="bg-purple-500/20 text-purple-500 border-purple-500/30">ML Powered</Badge>
-                </div>
+                </motion.div>
 
-                {predictionsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 text-cyan animate-spin" />
+                {/* Gauge & Stats */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-6">
+                  <div className="dashboard-card p-6">
+                    <h3 className="text-lg font-bold text-foreground mb-2">Portfolio Health</h3>
+                    <GaugeChart value={76} label="Performance Score" color="var(--cyan-primary)" />
+                    <div className="flex items-center justify-between mt-2 text-sm">
+                      <span className="text-muted-foreground">0%</span>
+                      <span className="text-emerald-500 font-medium">+15% vs last month</span>
+                      <span className="text-muted-foreground">100%</span>
+                    </div>
                   </div>
-                ) : predictions.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {predictions.slice(0, 4).map((item) => (
-                      <PredictionCard key={item.symbol} symbol={item.symbol} predictions={item.predictions} onClick={() => navigate(`/stock/${item.symbol}`)} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-slate-400">
-                    <Brain className="w-10 h-10 mx-auto mb-3 text-slate-600" />
-                    <p>Unable to load predictions</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
 
-            {/* Radar Chart */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <div className="dashboard-card p-6">
-                <h3 className="text-lg font-bold text-foreground mb-2">Portfolio Spread</h3>
-                <p className="text-sm text-muted-foreground mb-4">Risk Distribution Analysis</p>
-                <div className="h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={radarData}>
-                      <PolarGrid stroke="var(--chart-grid)" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--chart-text)', fontSize: 11 }} />
-                      <PolarRadiusAxis tick={{ fill: 'var(--chart-text)', fontSize: 10 }} axisLine={false} />
-                      <Radar name="Portfolio" dataKey="A" stroke="var(--cyan-primary)" fill="var(--cyan-primary)" fillOpacity={0.3} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Market Movers */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="mt-6">
-            <div className="dashboard-card p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <Activity className="w-5 h-5 text-emerald-500" />
+                  <div className="dashboard-card p-6">
+                    <h3 className="text-lg font-bold text-foreground mb-4">Quick Stats</h3>
+                    <div className="space-y-3">
+                      {[
+                        { label: 'Win Rate', value: '68%', color: 'var(--success)' },
+                        { label: 'Avg Return', value: '+12.4%', color: 'var(--cyan-primary)' },
+                        { label: 'Risk Score', value: 'Low', color: 'var(--warning)' },
+                      ].map((stat) => (
+                        <div key={stat.label} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                          <span className="text-muted-foreground">{stat.label}</span>
+                          <span className="font-bold" style={{ color: stat.color }}>{stat.value}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground">Market Movers</h3>
-                    <p className="text-sm text-muted-foreground">Top active stocks</p>
-                  </div>
-                </div>
+                </motion.div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                {loading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="h-20 bg-secondary/50 rounded-xl animate-pulse" />
-                  ))
-                ) : (
-                  trendingStocks.slice(0, 8).map((stock, idx) => (
-                    <button
-                      key={stock.symbol}
-                      onClick={() => navigate(`/stock/${stock.symbol}`)}
-                      className="p-4 bg-secondary/50 hover:bg-secondary rounded-xl flex items-center justify-between transition-colors border border-transparent hover:border-primary/30"
-                      data-testid={`trending-stock-${stock.symbol}`}
-                    >
+              {/* Bottom Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                {/* AI Predictions */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-2">
+                  <div className="dashboard-card p-6 h-full">
+                    <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-3">
-                        <span className="w-8 h-8 bg-primary/10 text-primary rounded-lg flex items-center justify-center text-sm font-bold">
-                          {idx + 1}
-                        </span>
-                        <span className="font-mono font-bold text-foreground">{stock.symbol}</span>
+                        <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                          <Brain className="w-5 h-5 text-purple-500" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-foreground">AI Stock Predictions</h3>
+                          <p className="text-sm text-muted-foreground">3D • 7D • 15D • 30D Forecasts</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-mono text-muted-foreground text-sm">₹{stock.price?.toLocaleString()}</p>
-                        <p className={`text-sm font-bold ${stock.change_percent >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                          {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent?.toFixed(2)}%
-                        </p>
+                      <Badge className="bg-purple-500/20 text-purple-500 border-purple-500/30">ML Powered</Badge>
+                    </div>
+
+                    {predictionsLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="w-8 h-8 text-cyan animate-spin" />
                       </div>
-                    </button>
-                  ))
-                )}
+                    ) : predictions.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {predictions.slice(0, 4).map((item) => (
+                          <PredictionCard key={item.symbol} symbol={item.symbol} predictions={item.predictions} onClick={() => navigate(`/stock/${item.symbol}`)} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-slate-400">
+                        <Brain className="w-10 h-10 mx-auto mb-3 text-slate-600" />
+                        <p>Unable to load predictions</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Radar Chart */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="lg:col-span-1">
+                  <div className="dashboard-card p-6 h-full">
+                    <h3 className="text-lg font-bold text-foreground mb-2">Portfolio Spread</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Risk Distribution Analysis</p>
+                    <div className="h-[250px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart data={radarData}>
+                          <PolarGrid stroke="var(--chart-grid)" />
+                          <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--chart-text)', fontSize: 11 }} />
+                          <PolarRadiusAxis tick={{ fill: 'var(--chart-text)', fontSize: 10 }} axisLine={false} />
+                          <Radar name="Portfolio" dataKey="A" stroke="var(--cyan-primary)" fill="var(--cyan-primary)" fillOpacity={0.3} />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-            </div>
-          </motion.div>
+
+              {/* Market Movers: Gainers and Losers */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                {/* Top Gainers */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                  <div className="dashboard-card p-6 h-full">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                          <TrendingUp className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-foreground">Top Gainers</h3>
+                          <p className="text-sm text-muted-foreground">Profitable stocks</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      {loading ? (
+                        Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className="h-20 bg-secondary/50 rounded-xl animate-pulse" />
+                        ))
+                      ) : (
+                        marketMovers.gainers?.slice(0, 4).map((stock, idx) => (
+                          <button
+                            key={stock.symbol}
+                            onClick={() => navigate(`/stock/${stock.symbol}`)}
+                            className="p-4 bg-secondary/50 hover:bg-secondary rounded-xl flex items-center justify-between transition-colors border border-transparent hover:border-primary/30"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="w-8 h-8 bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center text-sm font-bold">
+                                {idx + 1}
+                              </span>
+                              <span className="font-mono font-bold text-foreground">{stock.symbol}</span>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-mono text-muted-foreground text-sm">₹{stock.price?.toLocaleString()}</p>
+                              <p className="text-sm font-bold text-emerald-500">
+                                +{stock.change_percent?.toFixed(2)}%
+                              </p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Top Losers */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+                  <div className="dashboard-card p-6 h-full">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center">
+                          <TrendingDown className="w-5 h-5 text-red-500" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-foreground">Top Losers</h3>
+                          <p className="text-sm text-muted-foreground">Stocks in loss</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      {loading ? (
+                        Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className="h-20 bg-secondary/50 rounded-xl animate-pulse" />
+                        ))
+                      ) : (
+                        marketMovers.losers?.slice(0, 4).map((stock, idx) => (
+                          <button
+                            key={stock.symbol}
+                            onClick={() => navigate(`/stock/${stock.symbol}`)}
+                            className="p-4 bg-secondary/50 hover:bg-secondary rounded-xl flex items-center justify-between transition-colors border border-transparent hover:border-primary/30"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="w-8 h-8 bg-red-500/10 text-red-500 rounded-lg flex items-center justify-center text-sm font-bold">
+                                {idx + 1}
+                              </span>
+                              <span className="font-mono font-bold text-foreground">{stock.symbol}</span>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-mono text-muted-foreground text-sm">₹{stock.price?.toLocaleString()}</p>
+                              <p className="text-sm font-bold text-red-500">
+                                {stock.change_percent?.toFixed(2)}%
+                              </p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </>
+          )}
+
+          {activeSection === 'predictions' && (
+            <>
+              {/* News Section Full Width for 3rd Icon */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="h-full">
+                <div className="dashboard-card p-6 h-full flex flex-col min-h-[500px]">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-sky-500/20 rounded-xl flex items-center justify-center shadow-lg">
+                        <Activity className="w-6 h-6 text-sky-500" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-foreground">Latest Market News</h3>
+                        <p className="text-sm text-muted-foreground">Live real-time updates and articles</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max">
+                    {newsLoading ? (
+                      <div className="col-span-full flex items-center justify-center py-24">
+                        <Loader2 className="w-10 h-10 text-cyan animate-spin" />
+                      </div>
+                    ) : news && news.length > 0 ? (
+                      news.map((item, idx) => (
+                        <a
+                          key={idx}
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col justify-between p-5 bg-secondary/30 hover:bg-secondary/70 rounded-xl transition-all duration-300 border border-transparent hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 group"
+                        >
+                          <div>
+                            <h4 className="text-base font-bold text-foreground mb-3 line-clamp-3 group-hover:text-primary transition-colors">{item.title}</h4>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground mt-4 pt-3 border-t border-border/50">
+                            <span className="font-medium px-2 py-1 bg-background/50 rounded-md">{item.publisher || 'Market News'}</span>
+                            <span className="flex items-center gap-1">
+                               <Bell className="w-3 h-3" />
+                               {new Date(item.providerPublishTime * 1000).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </a>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-16 text-slate-400 bg-secondary/20 rounded-xl">
+                        <Activity className="w-12 h-12 mx-auto mb-4 text-slate-500/50" />
+                        <p className="text-lg">No recent news available.</p>
+                        <p className="text-sm mt-2 opacity-70">Please check back later for updates.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
         </main>
       </div>
     </div>
